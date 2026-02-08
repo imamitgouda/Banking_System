@@ -24,6 +24,11 @@ jobs:
           java-version: '17'
           distribution: 'microsoft'
 
+      # 🔥 FIX 1 — make mvnw executable
+      - name: Grant execute permission for mvnw
+        working-directory: banking-system
+        run: chmod +x mvnw
+
       - name: Build with Maven
         working-directory: banking-system
         run: ./mvnw clean install
@@ -46,6 +51,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: java-app
+          path: .
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -54,10 +60,11 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_1F5585948EF74EECB2C3340D2604FCB1 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_9ADDDB0E89034856B6CE8308C33863A3 }}
 
+      # 🔥 FIX 2 — deploy downloaded JAR
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'banking-system-application'
           slot-name: 'Production'
-          package: banking-system/target/*.jar
+          package: '*.jar'
